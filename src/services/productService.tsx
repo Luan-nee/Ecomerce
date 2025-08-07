@@ -1,7 +1,7 @@
 import { api } from "../config/axiosConnect";
 
-interface Productos {
-    id: number;
+interface Product {
+    id?: number;
     nombre: string;
     descripcion: string;
     marca: string;
@@ -10,8 +10,8 @@ interface Productos {
     color: string;
   }
 
-export function getProductos(): Promise<Productos[]> {
-  const obtenerProductos = async (): Promise<Productos[]> => {
+export function getProductos(): Promise<Product[]> {
+  const obtenerProductos = async (): Promise<Product[]> => {
     try {
       const datos = await api.get("/productos");
       return datos.data;
@@ -24,10 +24,11 @@ export function getProductos(): Promise<Productos[]> {
   return obtenerProductos();
 }
 
-export function createProduct(product: Productos): Promise<Productos> {
-  const crearProducto = async (): Promise<Productos> => {
+export function createProduct(product: Product): Promise<Product> {
+  const crearProducto = async (): Promise<Product> => {
     try {
       await api.post("/productos", product);
+      console.log('Producto creado exitosamente');
       return product;
     } catch (error) {
       console.log('Ocurrió un error al crear el producto', error);
