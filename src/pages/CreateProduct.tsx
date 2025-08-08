@@ -1,17 +1,8 @@
 import { useState } from "react";
 import { Container, Form, Button } from "react-bootstrap";
 import { createProduct } from "../services/productService";
+import type { Product } from "../interface/Product";
 import swal from "sweetalert";
-
-interface Product {
-  nombre: string;
-  descripcion: string;
-  marca: string;
-  precio: number;
-  foto: string;
-  color: string;
-}
-
 
 function CreateProduct(){
   const [values, setValues] = useState<Product>({

@@ -1,14 +1,5 @@
 import { api } from "../config/axiosConnect";
-
-interface Product {
-    id?: number;
-    nombre: string;
-    descripcion: string;
-    marca: string;
-    precio: number;
-    foto: string;
-    color: string;
-  }
+import type { Product } from "../interface/Product";
 
 export function getProductos(): Promise<Product[]> {
   const obtenerProductos = async (): Promise<Product[]> => {
@@ -37,4 +28,18 @@ export function createProduct(product: Product): Promise<Product> {
   };
 
   return crearProducto();
+}
+
+export function deleteProduct(product: Product): Promise<void> {
+  const eliminarProducto = async (): Promise<void> => {
+    try {
+      await api.delete(`/productos/${product.id}`);
+      console.log('Producto eliminado exitosamente');
+    } catch (error) {
+      console.log('Ocurrió un error al eliminar el producto', error);
+      throw error;
+    }
+  };
+
+  return eliminarProducto();
 }

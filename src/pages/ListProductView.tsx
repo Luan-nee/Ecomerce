@@ -1,30 +1,35 @@
 import { useEffect, useState } from "react";
-// import { api } from "../config/axiosConnect";
-import { getProductos } from "../services/productService";
+import { getProductos, deleteProduct } from "../services/productService";
 import { Table, Button, Spinner } from "react-bootstrap";
-
-interface Product {
-  id?: number;
-  nombre: string;
-  descripcion: string;
-  marca: string;
-  precio: number;
-  foto: string;
-  color: string;
-}
+import type { Product } from "../interface/Product";
 
 const ListProductView = () => {
   const [productos, setProductos] = useState<Product[]>([]);
-  let isLoading = false;
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const obtenerProductos = async () => {
+  const obtenerProductos = async () => {
+    setIsLoading(true);
+    try {
       const productos = await getProductos();
       setProductos(productos);
-    };
-    isLoading = true;
+    } catch (error) {
+      console.error('Error al obtener productos:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteProduct = async (producto: Product) => {
+    try {
+      await deleteProduct(producto);
+      await obtenerProductos(); // Recargar la lista después de eliminar
+    } catch (error) {
+      console.error('Error al eliminar producto:', error);
+    }
+  };
+
+  useEffect(() => {
     obtenerProductos();
-    isLoading = false;
   }, []);
 
   return (
@@ -37,30 +42,41 @@ const ListProductView = () => {
           <th>Descripción</th>
           <th>Marca</th>
           <th>Precio</th>
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
-        {isLoading?(
-          productos.map((producto)=>(
+        {isLoading ? (
+          <tr>
+            <td colSpan={5} className="text-center">
+              <div className="d-flex justify-content-center align-items-center py-3">
+                <Spinner animation="border" /> 
+                <span className="ms-2">Cargando productos...</span>
+              </div>
+            </td>
+          </tr>
+        ) : (
+          productos.map((producto) => (
             <tr key={producto.id}>
-              <td> {producto.nombre} </td>
-              <td> {producto.descripcion} </td>
-              <td> {producto.color} </td>
-              <td> {producto.precio} </td>
-              <td className="">
+              <td>{producto.nombre}</td>
+              <td>{producto.descripcion}</td>
+              <td>{producto.color}</td>
+              <td>${producto.precio}</td>
+              <td>
                 <div className="d-flex gap-1">
-                  <Button variant="primary">Editar</Button>
-                  <Button variant="danger">Eliminar</Button>
+                  <Button variant="primary" size="sm">Editar</Button>
+                  <Button 
+                    onClick={() => handleDeleteProduct(producto)} 
+                    variant="danger" 
+                    size="sm"
+                  >
+                    Eliminar
+                  </Button>
                 </div>
               </td>
             </tr>
           ))
-        ):(
-          <div className="d-flex justify-content-center align-items-center w-100">
-            <Spinner animation="border" /> 
-          </div>
-        )
-      }
+        )}
       </tbody>
     </Table>
     </div>
